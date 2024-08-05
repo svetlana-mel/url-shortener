@@ -1,18 +1,19 @@
 package config
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	Env         string `yaml:"env" env-default:"local"`
 	StoragePath string `yaml:"storage_path" env-required:"true"`
+	AliasLen    int    `yaml:"alias_len" env-default:"9"`
 	HTTPServer  `yaml:"http_server"`
 }
 
@@ -23,20 +24,23 @@ type HTTPServer struct {
 }
 
 func NewConfig() *Config {
-	configPath := flag.String("config", "./config/local.yaml", "path to configuration yaml file")
-	flag.Parse()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	configPath := os.Getenv("GOCONFIG_PATH")
 
 	// check if file exists
-	_, err := os.Stat(*configPath)
+	_, err = os.Stat(configPath)
 	if os.IsNotExist(err) {
-		log.Fatalf("config file %s does not exist", *configPath)
+		log.Fatalf("config file %s does not exist", configPath)
 	}
 
 	var config Config
 
-	fmt.Println(*configPath)
+	fmt.Println(configPath)
 
-	if err := cleanenv.ReadConfig(*configPath, &config); err != nil {
+	if err := cleanenv.ReadConfig(configPath, &config); err != nil {
 		log.Fatalf("cannot read config: %s", err)
 	}
 

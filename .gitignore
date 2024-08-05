@@ -1,4 +1,5 @@
 config/
 storage/storage.db
+.env
 
 !internal/config/*
