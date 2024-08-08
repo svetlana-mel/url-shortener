@@ -8,6 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/svetlana-mel/url-shortener/internal/config"
+	delete_url "github.com/svetlana-mel/url-shortener/internal/http-server/handlers/url/delete"
+	get_url "github.com/svetlana-mel/url-shortener/internal/http-server/handlers/url/get"
 	"github.com/svetlana-mel/url-shortener/internal/http-server/handlers/url/save"
 	slog_lib "github.com/svetlana-mel/url-shortener/internal/lib/logger/slog"
 	"github.com/svetlana-mel/url-shortener/internal/repository/sqlite"
@@ -22,7 +24,6 @@ const (
 func main() {
 	cfg := config.NewConfig()
 
-	// fmt.Println(cfg) // todo remove in production
 	log := setupLogger(ENV_LOCAL)
 
 	log.Info("starting url-shortner", slog.String("env", cfg.Env))
@@ -42,7 +43,16 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Post("/url", save.New(storage, log))
+	router.Route("/url", func(r chi.Router) {
+		r.Post("/", save.New(storage, log))
+		r.Get("/{alias}", get_url.New(storage, log))
+		r.Delete("/{alias}", delete_url.New(storage, log))
+	})
+
+	// router.Get("/alias", )
+	// router.Delete("/alias", )
+
+	// router.Get("/{alias}", redirect.New(storage, log))
 
 	log.Info("starting server", slog.String("addr", cfg.Address))
 

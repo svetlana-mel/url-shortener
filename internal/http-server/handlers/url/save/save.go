@@ -97,7 +97,7 @@ func New(saver URLSaver, log *slog.Logger) http.HandlerFunc {
 
 		err = saver.SaveURL(req.URL, alias)
 		if err != nil {
-			if errors.Is(err, repository.ErrAliasExists) {
+			if errors.Is(err, repository.ErrAliasAlreadyExists) {
 				log.Error("generator error: get dublicate alias", slog_lib.AddErrorAtribute(err))
 				render.JSON(w, r, &SaveResponse{
 					Status: "Error",

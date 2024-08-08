@@ -31,7 +31,7 @@ func (s *storage) SaveURL(urlString, alias string) error {
 	if err != nil {
 		sqliteError, ok := err.(sqlite3.Error)
 		if ok && sqliteError.ExtendedCode == sqlite3.ErrConstraintUnique {
-			return fmt.Errorf("%s: %w", op, repository.ErrAliasExists)
+			return fmt.Errorf("%s: %w", op, repository.ErrAliasAlreadyExists)
 		}
 
 		return fmt.Errorf("%s: %w", op, err)
@@ -99,10 +99,17 @@ func (s *storage) DeleteURL(alias string) error {
 		return fmt.Errorf("%s prepare stmt error: %w", op, err)
 	}
 
-	_, err = stmt.Exec(alias)
-
+	res, err := stmt.Exec(alias)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if rowsAffected == 0 {
+		return repository.ErrURLNotFound
 	}
 
 	return nil

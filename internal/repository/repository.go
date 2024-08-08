@@ -3,10 +3,10 @@ package repository
 import "errors"
 
 var (
-	ErrURLNotFound    = errors.New("url not found")
-	ErrAliasExists    = errors.New("alias already exists")
-	ErrAliasNotFound  = errors.New("alias not found")
-	ErrAliasNotUnique = errors.New("alias not unique")
+	ErrURLNotFound        = errors.New("url not found")
+	ErrAliasAlreadyExists = errors.New("alias already exists")
+	ErrAliasNotFound      = errors.New("alias not found")
+	ErrAliasNotUnique     = errors.New("alias not unique")
 )
 
 type URLRepository interface {
