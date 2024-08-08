@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/svetlana-mel/url-shortener/internal/config"
+	"github.com/svetlana-mel/url-shortener/internal/http-server/handlers/redirect"
 	delete_url "github.com/svetlana-mel/url-shortener/internal/http-server/handlers/url/delete"
 	get_url "github.com/svetlana-mel/url-shortener/internal/http-server/handlers/url/get"
 	"github.com/svetlana-mel/url-shortener/internal/http-server/handlers/url/save"
@@ -52,7 +53,7 @@ func main() {
 	// router.Get("/alias", )
 	// router.Delete("/alias", )
 
-	// router.Get("/{alias}", redirect.New(storage, log))
+	router.Get("/{alias}", redirect.New(storage, log))
 
 	log.Info("starting server", slog.String("addr", cfg.Address))
 
