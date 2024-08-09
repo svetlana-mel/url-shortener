@@ -7,12 +7,12 @@ import (
 func GenerateAlias(aliasLen int) string {
 	symbols := []rune("AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789")
 
+	// rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	res := make([]rune, aliasLen)
 
-	var generator rand.Rand
-
 	for i := 0; i < aliasLen; i++ {
-		res[i] = symbols[generator.Intn(aliasLen)]
+		res[i] = symbols[rand.Intn(len(symbols))]
 	}
 
 	return string(res)
