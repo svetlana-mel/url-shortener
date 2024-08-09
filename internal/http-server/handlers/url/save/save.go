@@ -8,13 +8,16 @@ import (
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/go-playground/validator/v10"
 
-	"github.com/svetlana-mel/url-shortener/internal/config"
+	// "github.com/svetlana-mel/url-shortener/internal/config"
+	"github.com/svetlana-mel/url-shortener/internal/lib/api/validation"
 	generator "github.com/svetlana-mel/url-shortener/internal/lib/generators/alias"
 	slog_lib "github.com/svetlana-mel/url-shortener/internal/lib/logger/slog"
 	"github.com/svetlana-mel/url-shortener/internal/repository"
 )
 
+// mockery --name=URLSaver --filename=URLSaver.go --output=mocks/ --outpkg=mocks
 type URLSaver interface {
 	SaveURL(urlString, alias string) error
 	GetAlias(urlString string) (string, error)
@@ -66,6 +69,19 @@ func New(saver URLSaver, log *slog.Logger) http.HandlerFunc {
 			})
 		}
 
+		// validation
+		if err := validator.New().Struct(req); err != nil {
+			validateErr := err.(validator.ValidationErrors)
+
+			log.Error("invalid request", slog_lib.AddErrorAtribute(err))
+
+			render.JSON(w, r, &SaveResponse{
+				Status: "Error",
+				Error:  validation.ValidationErrorMessages(validateErr)[0],
+			})
+			return
+		}
+
 		log.Info("request body decoded", slog.Any("request", req))
 
 		// check if url already has alias
@@ -88,11 +104,11 @@ func New(saver URLSaver, log *slog.Logger) http.HandlerFunc {
 			return
 		}
 
-		cfg := config.NewConfig()
+		// cfg := config.NewConfig()
 
 		alias = req.Alias
 		if alias == "" {
-			alias = generator.GenerateAlias(cfg.AliasLen)
+			alias = generator.GenerateAlias(8)
 		}
 
 		err = saver.SaveURL(req.URL, alias)
