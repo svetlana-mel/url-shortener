@@ -1,5 +1,6 @@
-config/
-storage/storage.db
+/config/
+/bin/
+/app/storage/storage.db
 .env
 
-!internal/config/*
+!app/internal/config/*
